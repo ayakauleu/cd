@@ -15,15 +15,16 @@ public class CrudController {
     @Autowired
     private CrudService crudService;
 
-    @PostMapping("/selectarray")
-    public String selectArray(@RequestBody WhereModel model) throws SQLException {
-        return crudService.selectArray(model.fields, model.from, model.where, model.query);
+    @PostMapping("/selectarray/{pid}")
+    public String selectArray(@RequestBody WhereModel model, @PathVariable Long pid) throws SQLException {
+        return crudService.selectArray(pid, model.fields, model.from, model.where, model.query);
     }
 
-    @PostMapping("/selectsingle")
-    public String selectSingle(@RequestBody WhereModel model) throws SQLException {
-        return crudService.selectSingle(model.fields, model.from, model.where, model.query);
+    @PostMapping("/selectsingle/{pid}")
+    public String selectSingle(@RequestBody WhereModel model, @PathVariable Long pid) throws SQLException {
+        return crudService.selectSingle(pid, model.fields, model.from, model.where, model.query);
     }
+
     @PostMapping("/describe")
     public String describeQuery(@RequestBody WhereModel model) throws SQLException {
         return crudService.describeQuery(model.query);
@@ -36,7 +37,12 @@ public class CrudController {
 
     @PatchMapping("/update")
     public void update(@RequestBody JSONObject model) throws SQLException {
-        crudService.update(model.get("updating").toString(), model.get("where").toString(), (HashMap<String, String>) model.get("what"));
+        crudService.update(Long.valueOf(model.get("pid").toString()), model.get("updating").toString(), model.get("where").toString(), (HashMap<String, String>) model.get("what"));
+    }
+
+    @PostMapping("/insert")
+    public void insert(@RequestBody JSONObject model) throws SQLException {
+        crudService.insert(Long.valueOf(model.get("pid").toString()), model.get("table").toString(), (HashMap<String, Object>) model.get("what"));
     }
 
 }

@@ -1,5 +1,6 @@
 package sc.dev.cd.keeper;
 
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import java.nio.file.Files;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -170,15 +172,18 @@ public class ReleaseController {
         return httpService.downloadFile(bytes, id.toString() + ".sql");
     }
 
-    @GetMapping("/test")
-    public String test() throws Exception {
-        conf.toString();
-        return keeperService.test();
-        //   throw new Exception("Вот так");
-    }
+//    @GetMapping("/test")
+//    public String test() throws Exception {
+//        conf.toString();
+//        return keeperService.test();
+//        //   throw new Exception("Вот так");
+//    }
 
-    @PostMapping("/test")
-    public LocalDate testPost(@RequestBody Model model) {
-        return model.date;
+    @GetMapping("/test")
+    public JSONObject testPost() {
+        var resp = new HashMap<String, Object>();
+        resp.put("result", true);
+        resp.put("resultText", "Произошла ошибка");
+        return new JSONObject(resp);
     }
 }

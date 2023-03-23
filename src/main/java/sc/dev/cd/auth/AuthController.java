@@ -14,7 +14,6 @@ import sc.dev.cd.model.LoginDto;
 public class AuthController {
     @Autowired
     private UserRepository userRepository;
-
     @PostMapping("/login")
     public ResponseEntity<User> login(@RequestBody LoginDto dto) {
         var user = userRepository.findByLoginIgnoreCase(dto.user);

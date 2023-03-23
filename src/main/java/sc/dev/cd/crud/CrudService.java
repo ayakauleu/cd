@@ -2,7 +2,9 @@ package sc.dev.cd.crud;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import sc.dev.cd.keeper.KeeperService;
 
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -14,9 +16,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class CrudService {
+    @Autowired
+    private KeeperService keeperService;
 
-    public String selectArray(String[] pFields, String pFrom, String pWhere, String query) throws SQLException {
-
+    public String selectArray(Long projectId, String[] pFields, String pFrom, String pWhere, String query) throws SQLException {
 //        if (pFrom.contains("select")) sqlTemplate = pFrom;
 //        else sqlTemplate = String.format("select * from %s where false", pFrom);
 
@@ -29,6 +32,12 @@ public class CrudService {
 
         var url = "jdbc:postgresql://192.168.253.178:5435/kp";
         var conn = DriverManager.getConnection(url, "postgres", "postgres");
+//        var pool = BasicConnectionPool.create(url, "postgres", "postgres");
+//        var conn = pool.getConnection();
+//
+//        var connSt = keeperService.getConnStringForKeeper(projectId, 1L);
+//        var conn = DriverManager.getConnection(connSt);
+//
         var st = conn.prepareStatement(sql);
         var rs = st.executeQuery();
 //        var rs = conn.getMetaData().getPrimaryKeys(null, null, tableName);
@@ -56,7 +65,7 @@ public class CrudService {
 //        JSONObject json = (JSONObject) parser.parse(stringToParse);
     }
 
-    public String selectSingle(String[] pFields, String pFrom, String pWhere, String query) throws SQLException {
+    public String selectSingle(Long projectId, String[] pFields, String pFrom, String pWhere, String query) throws SQLException {
 //        var sqlTemplate = "select * from %s %s";
 //        var stWhere = whereClause == null ? null : "where " + whereClause;
 //        var sql = String.format(sqlTemplate, tableName, stWhere);
@@ -68,8 +77,8 @@ public class CrudService {
 
         var sql = String.format(sqlTemplate, stSelect, query, stWhere);
 
-        var url = "jdbc:postgresql://192.168.253.178:5435/kp";
-        var conn = DriverManager.getConnection(url, "postgres", "postgres");
+        var connSt = keeperService.getConnStringForKeeper(projectId, 1L);
+        var conn = DriverManager.getConnection(connSt);
         var st = conn.prepareStatement(sql);
 
         var rs = st.executeQuery();
@@ -89,12 +98,12 @@ public class CrudService {
 //        JSONObject json = (JSONObject) parser.parse(stringToParse);
     }
 
-    public void update(String pTable, String pWhere, HashMap<String, String> pFields) throws SQLException {
+    public void update(Long projectId, String pTable, String pWhere, HashMap<String, String> pFields) throws SQLException {
 
         var stWhere = pWhere == null ? "" : "where " + pWhere;
         var stUpdate = pFields.entrySet()
                 .stream()
-                .map(e -> e.getKey()+"="+String.valueOf(e.getValue()))
+                .map(e -> e.getKey() + " = '" + String.valueOf(e.getValue())+"'")
                 .collect(Collectors.joining(","));
 
         String sqlTemplate = "update %s set %s %s";
@@ -102,8 +111,24 @@ public class CrudService {
 
         System.out.println(sql);
 
-        var url = "jdbc:postgresql://192.168.253.178:5435/kp";
-        var conn = DriverManager.getConnection(url, "postgres", "postgres");
+        var connSt = keeperService.getConnStringForKeeper(projectId, 1L);
+        var conn = DriverManager.getConnection(connSt);
+        var st = conn.prepareStatement(sql);
+        var rs = st.execute();
+    }
+
+    public void insert(Long projectId, String pTable, HashMap<String, Object> pFields) throws SQLException {
+        var stNames = pFields.keySet()
+                .stream()
+                .collect(Collectors.joining(","));
+        var stValues = pFields.values()
+                .stream().map(item -> "'"+item+"'")
+                .collect(Collectors.joining(","));
+        String sqlTemplate = "insert into %s(%s) values (%s)";
+        var sql = String.format(sqlTemplate, pTable, stNames, stValues);
+
+        var connSt = keeperService.getConnStringForKeeper(projectId, 1L);
+        var conn = DriverManager.getConnection(connSt);
         var st = conn.prepareStatement(sql);
         var rs = st.execute();
     }
