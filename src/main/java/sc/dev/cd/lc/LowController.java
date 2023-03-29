@@ -50,7 +50,7 @@ public class LowController {
         return entRepository.findByProjectIdOrderByEntityName(projectId);
     }
 
-//    @PatchMapping("/entities")
+    //    @PatchMapping("/entities")
 //    public void resUpdate(@RequestBody Ent ent) {
 //        var old = entRepository.findById(ent.resourceId).get();
 //        old.address = res.address;
@@ -59,6 +59,16 @@ public class LowController {
 //        old.typeId = res.typeId;
 //        resourceRepository.save(old);
 //    }
+    @GetMapping("/projects/{projectId}/schema/{pSchema}/table/{pTable}")
+    public void addEntity(@PathVariable("projectId") Long projectId, @PathVariable("pSchema") String pSchema, @PathVariable("pTable") String pTable) throws SQLException {
+        var connSt = keeperService.getConnStringForKeeper(projectId, 1L);
+        var conn = DriverManager.getConnection(connSt);
+        var sql = "SELECT dev_util.entity_add(?, ?)";
+        var st = conn.prepareStatement(sql);
+        st.setString(1, pSchema);
+        st.setString(2, pTable);
+        var rs = st.executeQuery();
+    }
 
     @PostMapping("/entities")
     public void resInsert(@RequestBody Ent res) {

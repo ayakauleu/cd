@@ -30,14 +30,14 @@ public class CrudService {
 
         var sql = String.format(sqlTemplate, stSelect, query, stWhere);
 
-        var url = "jdbc:postgresql://192.168.253.178:5435/kp";
-        var conn = DriverManager.getConnection(url, "postgres", "postgres");
+//        var url = "jdbc:postgresql://192.168.253.178:5435/kp";
+//        var conn = DriverManager.getConnection(url, "postgres", "postgres");
 //        var pool = BasicConnectionPool.create(url, "postgres", "postgres");
 //        var conn = pool.getConnection();
-//
-//        var connSt = keeperService.getConnStringForKeeper(projectId, 1L);
-//        var conn = DriverManager.getConnection(connSt);
-//
+
+        var connSt = keeperService.getConnStringForKeeper(projectId, 1L);
+        var conn = DriverManager.getConnection(connSt);
+
         var st = conn.prepareStatement(sql);
         var rs = st.executeQuery();
 //        var rs = conn.getMetaData().getPrimaryKeys(null, null, tableName);
