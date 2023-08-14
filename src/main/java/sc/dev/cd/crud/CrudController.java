@@ -20,19 +20,14 @@ public class CrudController {
         return crudService.selectArray(pid, model.fields, model.from, model.where, model.query);
     }
 
+    @GetMapping("/selectarray/{pid}/{eid}")
+    public String selectArray(@PathVariable Long pid, @PathVariable Integer eid) throws SQLException {
+        return crudService.selectArray(pid, eid );
+    }
+
     @PostMapping("/selectsingle/{pid}")
     public String selectSingle(@RequestBody WhereModel model, @PathVariable Long pid) throws SQLException {
         return crudService.selectSingle(pid, model.fields, model.from, model.where, model.query);
-    }
-
-    @PostMapping("/describe")
-    public String describeQuery(@RequestBody WhereModel model) throws SQLException {
-        return crudService.describeQuery(model.query);
-    }
-
-    @GetMapping("/describe/{table}")
-    public String describeTable(@PathVariable String table) throws SQLException {
-        return crudService.describeTable(table);
     }
 
     @PatchMapping("/update")
@@ -45,4 +40,18 @@ public class CrudController {
         crudService.insert(Long.valueOf(model.get("pid").toString()), model.get("table").toString(), (HashMap<String, Object>) model.get("what"));
     }
 
+    @PostMapping("/delete/{pid}")
+    public void delete(@RequestBody WhereModel model, @PathVariable Long pid) throws SQLException {
+        crudService.delete(pid, model.table, model.where);
+    }
+
+    @PostMapping("/describe/{pid}")
+    public String describeQuery(@RequestBody WhereModel model, @PathVariable Long pid) throws SQLException {
+        return crudService.describeQuery(pid, model.query);
+    }
+
+    @GetMapping("/describe/{pid}/{table}")
+    public String describeTable(@PathVariable String table, @PathVariable Long pid) throws SQLException {
+        return crudService.describeTable(pid, table);
+    }
 }

@@ -57,7 +57,7 @@ public class KeeperService {
     @Autowired
     private CliService cliService;
 
-    final private String CMD_PREPARE = "%s --in-charset utf-8 --out-charset utf-8 -t \"%s\" -s \"%s\" -o %s -I %s";
+    final private String CMD_PREPARE = "%s --in-charset utf-8 --out-charset utf-8 --ignore-column-order -t \"%s\" -s \"%s\" -o %s -I %s";
     final private String CMD_APPLY = "psql -f %s %s";
 
     public Long releasePrepare(int dbType, ProjectSetting projectSetting, String releaseName) throws SQLException, IOException, InterruptedException {
@@ -85,11 +85,14 @@ public class KeeperService {
         if (projectSetting.wipeComments) {
             doBody = wipeComments(doBody);
         }
+        if (!doMap.err().isBlank())
+            throw new ResponseStatusException(HttpStatus.I_AM_A_TEAPOT, doMap.err(), null);
+
         if (doBody.trim().isBlank())
             throw new ResponseStatusException(HttpStatus.I_AM_A_TEAPOT, "Объекты баз идентичны, обновление не требуется", null);
 
         //Формируем командную строку
-        String undoCmd = String.format(CMD_PREPARE, exePath, targetConn, sourceConn, undoPath, ignorePath);
+        String undoCmd = String.format(CMD_PREPARE, exePath, sourceConn, targetConn, undoPath, ignorePath);
         //Создаем файл отката
         cliService.execConsole(undoCmd);
         var undoBody = new String(Files.readAllBytes(undoPath));
@@ -151,32 +154,32 @@ public class KeeperService {
 
     public String getConnStringForKeeper(Long projectId, Long typeId) throws SQLException {
         var url = "jdbc:postgresql://192.168.253.178:5435/kp";
-        var conn = DriverManager.getConnection(url, "postgres", "postgres");
+        var sql = "select address, login, password from release.project_resource where project_id = ? and type_id = ?";
+        try (var conn = DriverManager.getConnection(url, "postgres", "postgres"); var st = conn.prepareStatement(sql);) {
+            st.setLong(1, projectId);
+            st.setLong(2, typeId);
+            var rs = st.executeQuery();
+            rs.next();
 
-        var st = conn.prepareStatement("select address, login, password from release.project_resource where project_id = ? and type_id = ?");
-        st.setLong(1, projectId);
-        st.setLong(2, typeId);
-        var rs = st.executeQuery();
-        rs.next();
-
-        var template = "jdbc:postgresql://%s?user=%s&password=%s";
-        var filled = String.format(template, rs.getString(1), rs.getString(2), rs.getString(3));
-        return filled;
+            var template = "jdbc:postgresql://%s?user=%s&password=%s";
+            var filled = String.format(template, rs.getString(1), rs.getString(2), rs.getString(3));
+            return filled;
+        }
     }
 
     public String getConnStringForPsql(Long projectId, Long typeId) throws SQLException {
         var url = "jdbc:postgresql://192.168.253.178:5435/kp";
-        var conn = DriverManager.getConnection(url, "postgres", "postgres");
+        var sql = "select address, login, password from release.project_resource where project_id = ? and type_id = ?";
+        try (var conn = DriverManager.getConnection(url, "postgres", "postgres"); var st = conn.prepareStatement(sql); ) {
+            st.setLong(1, projectId);
+            st.setLong(2, typeId);
+            var rs = st.executeQuery();
+            rs.next();
 
-        var st = conn.prepareStatement("select address, login, password from release.project_resource where project_id = ? and type_id = ?");
-        st.setLong(1, projectId);
-        st.setLong(2, typeId);
-        var rs = st.executeQuery();
-        rs.next();
-
-        var template = "postgresql://%s:%s@%s";
-        var filled = String.format(template, rs.getString(2), rs.getString(3), rs.getString(1));
-        return filled;
+            var template = "postgresql://%s:%s@%s";
+            var filled = String.format(template, rs.getString(2), rs.getString(3), rs.getString(1));
+            return filled;
+        }
     }
 
     public byte[] readFromDB(Long releaseId) {
@@ -219,7 +222,7 @@ public class KeeperService {
 
     public String test() throws Exception {
 
-        return nc.show();
+        return cliService.execRemote("ls -l");
 
 //        for (int i = 0; i < 100000; i++) {
 //            Thread.startVirtualThread(

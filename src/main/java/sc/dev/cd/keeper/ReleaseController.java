@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sc.dev.cd.IniYaml;
 import sc.dev.cd.model.*;
+import sc.dev.cd.tools.CliService;
 import sc.dev.cd.tools.HttpService;
 
 import java.io.IOException;
@@ -39,6 +40,8 @@ public class ReleaseController {
     private ProjectSettingRepository projectSettingRepository;
     @Autowired
     private HttpService httpService;
+    @Autowired
+    private CliService cliService;
 
     @Autowired
     private IniYaml conf;
@@ -172,18 +175,25 @@ public class ReleaseController {
         return httpService.downloadFile(bytes, id.toString() + ".sql");
     }
 
-//    @GetMapping("/test")
-//    public String test() throws Exception {
-//        conf.toString();
-//        return keeperService.test();
-//        //   throw new Exception("Вот так");
-//    }
-
     @GetMapping("/test")
-    public JSONObject testPost() {
-        var resp = new HashMap<String, Object>();
-        resp.put("result", true);
-        resp.put("resultText", "Произошла ошибка");
-        return new JSONObject(resp);
+    public ResponseEntity<String>  test() throws Exception {
+        conf.toString();
+        return ResponseEntity.ok(keeperService.test());
+        //   throw new Exception("Вот так");
     }
+
+    @PostMapping("/cli/exec_remote")
+    public ResponseEntity<String> execRemote(@RequestBody ExecRemoteModel model) throws Exception {
+//        return ResponseEntity.ok(cmd);
+        return ResponseEntity.ok(cliService.execRemote(model.cmd));
+        //   throw new Exception("Вот так");
+    }
+
+//    @GetMapping("/test")
+//    public JSONObject testPost() {
+//        var resp = new HashMap<String, Object>();
+//        resp.put("result", true);
+//        resp.put("resultText", "Произошла ошибка");
+//        return new JSONObject(resp);
+//    }
 }
