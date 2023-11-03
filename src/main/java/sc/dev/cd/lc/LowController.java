@@ -23,7 +23,7 @@ public class LowController {
 
 
     //actions
-    @GetMapping("/projects/{projectId}/table/{pTable}/audit/{turnOn}")
+        @GetMapping("/projects/{projectId}/table/{pTable}/audit/{turnOn}")
     public void addAudit(@PathVariable("projectId") Long projectId, @PathVariable("pTable") String pTable, @PathVariable("turnOn") Boolean turnOn) throws SQLException {
         var connSt = keeperService.getConnStringForKeeper(projectId, 1L);
         var conn = DriverManager.getConnection(connSt);

@@ -139,7 +139,7 @@ public class CrudService {
         String sqlTemplate = "delete from %s where %s";
         var sql = String.format(sqlTemplate, pTable, stWhere);
         var connSt = keeperService.getConnStringForKeeper(projectId, 1L);
-        try (var conn = DriverManager.getConnection(connSt); var st = conn.prepareStatement(sql);) {
+        try (var conn = DriverManager.getConnection(connSt); var st = conn.prepareStatement(sql); ) {
             var rs = st.execute();
         } catch (Exception e) {
             throw new SQLException(String.format("%s \nin %s", e.getMessage(), sql));
