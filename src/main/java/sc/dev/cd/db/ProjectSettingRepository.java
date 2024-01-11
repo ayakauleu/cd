@@ -1,9 +1,7 @@
-package sc.dev.cd.keeper;
+package sc.dev.cd.db;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import sc.dev.cd.model.ProjectSetting;
-
-import java.util.List;
+import sc.dev.cd.db.ProjectSetting;
 
 public interface ProjectSettingRepository extends JpaRepository<ProjectSetting, Long> {
 }

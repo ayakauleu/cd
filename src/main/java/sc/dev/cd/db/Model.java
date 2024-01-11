@@ -1,4 +1,4 @@
-package sc.dev.cd.model;
+package sc.dev.cd.db;
 
 import java.time.LocalDate;
 

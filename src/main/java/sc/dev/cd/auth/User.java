@@ -4,10 +4,10 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 
 @Entity
-@Table(schema = "kp_core", name = "user_")
+@Table(schema = "auth", name = "user_")
 public class User {
     @Id
-    public BigDecimal userId;
+    public Long userId;
     public String name;
     public String login;
     public String password;

@@ -162,7 +162,7 @@ public class CrudService {
 
 
     private JSONArray describe(Long projectId, String query) throws SQLException {
-        var sql = String.format("select * from (%s) q where false", query);
+        var sql = String.format("select * from (%s) q where 1 = 0", query);
         var connSt = keeperService.getConnStringForKeeper(projectId, 1L);
         try (var conn = DriverManager.getConnection(connSt); var st = conn.prepareStatement(sql);) {
 

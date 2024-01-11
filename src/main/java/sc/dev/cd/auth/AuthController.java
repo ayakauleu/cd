@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import sc.dev.cd.model.LoginDto;
+import sc.dev.cd.db.LoginDto;
 
 @RestController
 @RequestMapping("/api")

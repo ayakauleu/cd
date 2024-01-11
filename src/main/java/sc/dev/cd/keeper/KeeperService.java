@@ -7,8 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import sc.dev.cd.conf.NekiiClass;
-import sc.dev.cd.model.ProjectSetting;
-import sc.dev.cd.model.Release;
+import sc.dev.cd.db.*;
 import sc.dev.cd.tools.CliService;
 
 import java.io.IOException;
@@ -58,7 +57,7 @@ public class KeeperService {
     private CliService cliService;
 
     final private String CMD_PREPARE = "%s --in-charset utf-8 --out-charset utf-8 --ignore-column-order -t \"%s\" -s \"%s\" -o %s -I %s";
-    final private String CMD_APPLY = "psql -f %s %s";
+    final private String CMD_APPLY = "C:/Program Files/PostgreSQL/16/bin/psql -f %s %s";
 
     public Long releasePrepare(int dbType, ProjectSetting projectSetting, String releaseName) throws SQLException, IOException, InterruptedException {
         if (dbType == 2) return releasePreparePg(projectSetting, releaseName);
@@ -153,24 +152,30 @@ public class KeeperService {
     }
 
     public String getConnStringForKeeper(Long projectId, Long typeId) throws SQLException {
-        var url = "jdbc:postgresql://192.168.253.178:5435/kp";
+        var urlLC = env.getProperty("spring.datasource.url");
         var sql = "select address, login, password from release.project_resource where project_id = ? and type_id = ?";
-        try (var conn = DriverManager.getConnection(url, "postgres", "postgres"); var st = conn.prepareStatement(sql);) {
+        try (var conn = DriverManager.getConnection(urlLC, "postgres", "postgres"); var st = conn.prepareStatement(sql);) {
             st.setLong(1, projectId);
             st.setLong(2, typeId);
             var rs = st.executeQuery();
             rs.next();
-
-            var template = "jdbc:postgresql://%s?user=%s&password=%s";
-            var filled = String.format(template, rs.getString(1), rs.getString(2), rs.getString(3));
-            return filled;
+            var template = "";
+            var filled = "";
+            if (projectId != 13) {
+                template = "jdbc:postgresql://%s?user=%s&password=%s";
+                filled = String.format(template, rs.getString(1), rs.getString(2), rs.getString(3));
+            } else {
+                template = "jdbc:oracle:thin:%s/%s@%s";
+                filled = String.format(template, rs.getString(2), rs.getString(3), rs.getString(1));
+            }
+           return filled;
         }
     }
 
     public String getConnStringForPsql(Long projectId, Long typeId) throws SQLException {
-        var url = "jdbc:postgresql://192.168.253.178:5435/kp";
+        var url = env.getProperty("spring.datasource.url");
         var sql = "select address, login, password from release.project_resource where project_id = ? and type_id = ?";
-        try (var conn = DriverManager.getConnection(url, "postgres", "postgres"); var st = conn.prepareStatement(sql); ) {
+        try (var conn = DriverManager.getConnection(url, "postgres", "postgres"); var st = conn.prepareStatement(sql);) {
             st.setLong(1, projectId);
             st.setLong(2, typeId);
             var rs = st.executeQuery();
@@ -222,7 +227,7 @@ public class KeeperService {
 
     public String test() throws Exception {
 
-        return cliService.execRemote("ls -l");
+//        return cliService.execRemote("ls -l");
 
 //        for (int i = 0; i < 100000; i++) {
 //            Thread.startVirtualThread(
@@ -235,12 +240,12 @@ public class KeeperService {
 //                    }
 //            );
 //        }
+        var connSt = getConnStringForKeeper(13L, 1L);
+        var conn = DriverManager.getConnection(connSt);
+        var st = conn.prepareStatement("create restore point third");
+        boolean res = st.execute();
 
-//        var url = "jdbc:postgresql://192.168.253.178:5432/kp_sms";
-//        var conn = DriverManager.getConnection(url, "postgres", "postgres");
-//        var text = "jnkojko hjhj jhiopjhiopjh jhiopjhiop jiopfgyui gbuhigh";
-//        var st = conn.prepareStatement("select * from dev_utils.file_ WHERE id = 4");
-//        var rs = st.executeQuery();
+        return "lalala";
 //        var b = rs.getBlob(1);
 
 

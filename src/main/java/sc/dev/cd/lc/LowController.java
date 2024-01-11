@@ -1,11 +1,9 @@
 package sc.dev.cd.lc;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import sc.dev.cd.keeper.KeeperService;
-import sc.dev.cd.model.Resource;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;

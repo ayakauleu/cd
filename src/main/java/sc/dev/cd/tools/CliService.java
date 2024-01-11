@@ -1,7 +1,7 @@
 package sc.dev.cd.tools;
 
 import org.springframework.stereotype.Service;
-import sc.dev.cd.model.CliResponse;
+import sc.dev.cd.db.CliResponse;
 import com.jcraft.jsch.*;
 
 import java.io.IOException;
@@ -21,8 +21,10 @@ public class CliService {
         return new CliResponse(io, err);
     }
 
-    private static final String REMOTE_HOST = "192.168.253.178";
-    private static final String USERNAME = "root";
+    private static final String REMOTE_HOST = "localhost";
+    private static final String USERNAME = "SCDC\\yakauleu";
+//    private static final String REMOTE_HOST = "192.168.253.178";
+//    private static final String USERNAME = "root";
     private static final int REMOTE_PORT = 22;
     private static final int SESSION_TIMEOUT = 10000;
     private static final int CHANNEL_TIMEOUT = 5000;
@@ -43,7 +45,8 @@ public class CliService {
             jschSession.setConfig("PreferredAuthentications", "password");
 
             // authenticate using private key
-            jschSession.setPassword("Pas4Admin");
+//            jschSession.setPassword("Pas4Admin");
+            jschSession.setPassword("Oracle78");
             //addIdentity("/home/mkyong/.ssh/id_rsa");
 
             // 10 seconds timeout session
